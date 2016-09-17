@@ -107,8 +107,14 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
    */
   
   public function inventory() {
-    // XXX implement based on MLA requirements
-    throw new DomainException("NOT IMPLEMENTED");
+    $syncFile = App::pluginPath('MlaSource') . 'Config/full-sync-ids';
+    $ret = array();
+    
+    if(is_readable($syncFile)) {
+      $ret = array_filter(explode("\n", file_get_contents($syncFile)));
+    }
+    
+    return $ret;
   }
   
   /**
@@ -148,7 +154,8 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
       }
       $request->setHeader('Content-type: application/json');
       // Disable SSL cert verification for testing with "bad" certs
-      // $request->setConfig(array('ssl_verify_peer' => false));
+      // MLA API needs verify turned off until proper cert chain can be installed
+      $request->setConfig(array('ssl_verify_peer' => false));
       $request->setBody($requestBody);
       $response = $request->send();
     }
@@ -269,6 +276,27 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
       $orgdata['EmailAddress'][0]['mail'] = $result['general']['email'];
       $orgdata['EmailAddress'][0]['type'] = EmailAddressEnum::Official;
       $orgdata['EmailAddress'][0]['verified'] = false;
+    }
+    
+    $orgdata['Identifier'] = array();
+    
+    if(!empty($result['authentication']['username'])
+       && !empty($result['general']['joined_commons'])
+       && $result['general']['joined_commons'] == 'Y') {
+      $orgdata['Identifier'][0]['identifier'] = $result['authentication']['username'];
+      // XXX wpid isn't a valid orgidentity identifier type, so for now
+      // wpid.patch needs to be applied to make it one. Once CO-530 is
+      // resolved, the patch will no longer be needed.
+      $orgdata['Identifier'][0]['type'] = 'wpid';
+      $orgdata['Identifier'][0]['login'] = false;
+      $orgdata['Identifier'][0]['status'] = StatusEnum::Active;
+      
+      if(!empty($this->pluginCfg['eppnsuffix'])) {
+        $orgdata['Identifier'][1]['identifier'] = $result['authentication']['username'] . $this->pluginCfg['eppnsuffix'];
+        $orgdata['Identifier'][1]['type'] = IdentifierEnum::ePPN;
+        $orgdata['Identifier'][1]['login'] = true;
+        $orgdata['Identifier'][1]['status'] = StatusEnum::Active;
+      }
     }
     
     return $orgdata;

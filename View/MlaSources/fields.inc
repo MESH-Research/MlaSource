@@ -73,6 +73,15 @@
         <?php print ($e ? $this->Form->input('apisecret') : Sanitize::html($mla_sources[0]['MlaSource']['apisecret'])); ?>
       </td>
     </tr>
+    <tr class="line2">
+      <td>
+        <strong class="fieldTitle"><?php print _txt('pl.mlasource.eppnsuffix'); ?></strong><br />
+        <font class="desc"><?php print _txt('pl.mlasource.eppnsuffix.desc'); ?></font>
+      </td>
+      <td>
+        <?php print ($e ? $this->Form->input('eppnsuffix', array('size' => 50)) : Sanitize::html($mla_sources[0]['MlaSource']['eppnsuffix'])); ?>
+      </td>
+    </tr>
     <tr>
       <td>
         <i><font class="required"><?php print _txt('fd.req'); ?></font></i><br />

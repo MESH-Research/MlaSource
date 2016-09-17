@@ -44,4 +44,6 @@ $cm_mla_source_texts['en_US'] = array(
   'pl.mlasource.apiroot.desc'   => 'URL prefix for the API, including schema and host (eg: https://apidev.mla.org/1)',
   'pl.mlasource.apisecret'      => 'API Secret',
   'pl.mlasource.apisecret.desc' => 'MLA API Secret',
+  'pl.mlasource.eppnsuffix'     => 'EPPN Suffix',
+  'pl.mlasource.eppnsuffix.desc' => 'Suffix to append to WordPress username to generate eppn (include @, eg: @idp.mla.org)'
 );

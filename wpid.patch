@@ -1,0 +1,24 @@
+diff --git a/app/Lib/lang.php b/app/Lib/lang.php
+index df1a9af..c5338c1 100644
+--- a/app/Lib/lang.php
++++ b/app/Lib/lang.php
+@@ -458,6 +458,7 @@ original notification at
+                                  IdentifierEnum::Mail => 'Mail',
+                                  IdentifierEnum::OpenID => 'OpenID',
+                                  IdentifierEnum::ORCID => 'ORCID ID',
++                                 'wpid' => 'WordPress ID',
+                                  IdentifierEnum::UID => 'UID'),
+   
+   // As a moderately arbitrary decision, the languages listed here those with at least
+diff --git a/app/Model/Identifier.php b/app/Model/Identifier.php
+index 1336083..1acb734 100644
+--- a/app/Model/Identifier.php
++++ b/app/Model/Identifier.php
+@@ -73,6 +73,7 @@ class Identifier extends AppModel {
+                                                  IdentifierEnum::Mail,
+                                                  IdentifierEnum::OpenID,
+                                                  IdentifierEnum::ORCID,
++                                                 'wpid',
+                                                  IdentifierEnum::UID))),
+         'required' => true,
+         'allowEmpty' => false

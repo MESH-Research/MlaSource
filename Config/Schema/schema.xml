@@ -37,6 +37,7 @@
     <field name="apiroot" type="C" size="256" />
     <field name="apikey" type="C" size="64" />
     <field name="apisecret" type="C" size="128" />
+    <field name="eppnsuffix" type="C" size="128" />
     <field name="created" type="T" />
     <field name="modified" type="T" />
 

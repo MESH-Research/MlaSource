@@ -1,4 +1,4 @@
-COmanage Registry MLA OrgIdentitySource Backend Model
+COmanage Registry MLA OrgIdentitySource
 
 Copyright (C) 2016 Modern Language Association
 
@@ -12,6 +12,37 @@ the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS
 KIND, either express or implied. See the License for the specific language governing
 permissions and limitations under the License.
 
-This model requires HTTP_Request2
+--------
+
+This plugin requires HTTP_Request2
 https://pear.php.net/package/HTTP_Request2/
 Install with pear via "pear install HTTP_Request2"
+
+--------
+
+This plugin requires a patch (wpid.patch) until CO-530
+(https://bugs.internet2.edu/jira/browse/CO-530) is resolved.
+The patch will need to be applied each time the core
+COmanage code is updated.
+
+--------
+
+To perform a "batch" load of records:
+
+(1) Generate a list of member IDs (suitable for passing to GET /member/{id}),
+    and place them in MlaSource/Config/full-sync-ids. There should be one id
+    per line.
+
+(2) Configure the plugin in "Full" Sync Mode.
+    https://spaces.internet2.edu/x/eAaVBQ
+    
+(3) Manually run the 'syncorgsources' JobShell.
+    https://spaces.internet2.edu/x/m4MQBg
+    
+    Note this will run for all configured org identity sources that are not
+    in "Manual" Sync Mode. If you don't want that to happen, temporarily
+    reconfigure them into "Manual" mode.
+    
+(4) After the job is complete, you may want to put the MLA source back into
+    "Query" mode. If full-sync-ids isn't going to change often, doing this
+    will save some overhead in reprocessing.
