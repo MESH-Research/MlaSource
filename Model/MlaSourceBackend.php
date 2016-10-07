@@ -275,7 +275,7 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
     if(!empty($result['general']['email'])) {
       $orgdata['EmailAddress'][0]['mail'] = $result['general']['email'];
       $orgdata['EmailAddress'][0]['type'] = EmailAddressEnum::Official;
-      $orgdata['EmailAddress'][0]['verified'] = false;
+      $orgdata['EmailAddress'][0]['verified'] = true;
     }
     
     $orgdata['Identifier'] = array();
