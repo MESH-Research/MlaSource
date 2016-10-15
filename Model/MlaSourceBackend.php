@@ -261,14 +261,14 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
       }
     }
 
-    $orgdata['PrimaryName'] = array();
+    $orgdata['Name'] = array();
     
     if(!empty($result['general']['first_name']))
-      $orgdata['PrimaryName']['given'] = $result['general']['first_name'];
+      $orgdata['Name'][0]['given'] = $result['general']['first_name'];
     if(!empty($result['general']['last_name']))
-      $orgdata['PrimaryName']['family'] = $result['general']['last_name'];
-    $orgdata['PrimaryName']['primary_name'] = true;
-    $orgdata['PrimaryName']['type'] = NameEnum::Official;
+      $orgdata['Name'][0]['family'] = $result['general']['last_name'];
+    $orgdata['Name'][0]['primary_name'] = true;
+    $orgdata['Name'][0]['type'] = NameEnum::Official;
     
     $orgdata['EmailAddress'] = array();
     
