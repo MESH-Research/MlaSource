@@ -111,7 +111,11 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
     $ret = array();
     
     if(is_readable($syncFile)) {
-      $ret = array_filter(explode("\n", file_get_contents($syncFile)));
+      $ids = array_filter(explode("\n", file_get_contents($syncFile)));
+      
+      foreach($ids as $id) {
+        $ret[] = preg_replace("/[^0-9]/", "", $id);
+      }
     }
     
     return $ret;
