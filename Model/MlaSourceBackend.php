@@ -324,7 +324,10 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
     $results = $this->queryMlaApi(array('id' => $id));
 
     if($results['meta']['status'] != 'success'
-       || empty($results['data'][0]['id'])) {
+       || empty($results['data'][0]['id'])
+       // Filter out inactive records (#242)
+       || (!empty($results['data'][0]['authentication']['membership_status'])
+           && $results['data'][0]['authentication']['membership_status'] == 'inactive')) {
       throw new InvalidArgumentException(_txt('er.id.unk-a', array($id)));
     }
       
@@ -356,18 +359,29 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
       unset($attrs['mail']);
     }
     
-    // Need this to get MLA staff
+    // We need to query memberships_status=ALL to get MLA staff,
+    // but that pulls inactive users as well. We can't run a second
+    // query and do a diff, since our only options are "active" and "all".
+    // Our only option then is to query each search result. (#242)
     $attrs['membership_status'] = 'ALL';
     
     $results = $this->queryMlaApi($attrs);
-
+    
     // Turn the results into an array
     
     if($results['meta']['status'] == 'success'
        && $results['data'][0]['total_num_results'] > 0) {
       foreach($results['data'][0]['search_results'] as $r) {
-        // Use the record ID as the unique ID
-        $ret[ $r['id'] ] = $this->resultToOrgIdentity($r);
+        // We need to filter out inactive records (#242)
+        try {
+          $details = $this->retrieve($r['id']);
+          
+          // Use the record ID as the unique ID
+          $ret[ $r['id'] ] = $this->resultToOrgIdentity($r);
+        }
+        catch(Exception $e) {
+          // Most likely record not found, so don't add to search results
+        }
       }
     }
     
