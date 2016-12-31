@@ -264,6 +264,35 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
         }
       }
     }
+    
+    $localTZ = new DateTimeZone("America/New_York");
+    $utcTZ = new DateTimeZone("UTC");
+
+    if(!empty($result['membership']['starting_date'])) {
+      // Format is MM/DD/YYYY, from start of day Eastern Time
+      
+      $d = $result['membership']['starting_date'] . " 00:00:00";
+      
+      // Create a DateTime object in localtime
+      $localDT = new DateTime($d, $localTZ);
+      // And convert it to UTC before emitting
+      $localDT->setTimezone($utcTZ);
+      
+      $orgdata['OrgIdentity']['valid_from'] = $localDT->format("Y-m-d H:i:s");
+    }
+    
+    if(!empty($result['membership']['expiring_date'])) {
+      // Format is MM/DD/YYYY, presumably valid through end of day Eastern Time
+      
+      $d = $result['membership']['expiring_date'] . " 23:59:59";
+      
+      // Create a DateTime object in localtime
+      $localDT = new DateTime($d, $localTZ);
+      // And convert it to UTC before emitting
+      $localDT->setTimezone($utcTZ);
+      
+      $orgdata['OrgIdentity']['valid_through'] = $localDT->format("Y-m-d H:i:s");
+    }
 
     $orgdata['Name'] = array();
     
