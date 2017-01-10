@@ -346,10 +346,10 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
       throw new InvalidArgumentException(_txt('er.id.unk-a', array($id)));
     }
       
+    // Remove password due to unnecessary syncs, other history due to privacy policy
     unset($results['data'][0]['authentication']['password']);
     unset($results['data'][0]['publications_access']);
     unset($results['data'][0]['publications_history']);
-    unset($results['data'][0]['addresses']);
     unset($results['data'][0]['dues_history']);
     unset($results['data'][0]['contributions_history']);
 
@@ -374,6 +374,9 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
         }
       }
     }
+
+    // Remove due to privacy policy
+    unset($results['data'][0]['addresses']);
 
     $ret['raw'] = json_encode($results, JSON_PRETTY_PRINT);
     $ret['orgidentity'] = $this->resultToOrgIdentity($results['data'][0]);
