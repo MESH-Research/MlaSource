@@ -243,28 +243,14 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
     // Until we have some rules, everyone is a member
     $orgdata['OrgIdentity']['affiliation'] = AffiliationEnum::Member;
     
-    // Some attributes only show up in the detailed view (get via ID).
-    // A member can have multiple addresses with somewhat different
-    // attributes, for now we just look at primary.
-    
-    if(!empty($result['addresses'])) {
-      foreach($result['addresses'] as $ra) {
-        if($ra['type'] == 'primary') {
-          if(!empty($ra['affiliation'])) {
-            $orgdata['OrgIdentity']['o'] = $ra['affiliation'];
-          }
-          
-          // Unclear what if anything should map to ou...
-          
-          if(!empty($ra['rank'])) {
-            $orgdata['OrgIdentity']['title'] = $ra['rank'];
-          }
-          
-          break;
-        }
-      }
+    // MLA API stored results customized due to privicay policy
+    if(!empty($result['comanage_custom']['primary_address_affiliation'])) {
+      $orgdata['OrgIdentity']['o'] = $result['comanage_custom']['primary_address_affiliation'];
     }
-    
+    if(!empty($result['comanage_custom']['primary_address_rank'])) {
+      $orgdata['OrgIdentity']['title'] = $result['comanage_custom']['primary_address_rank'];
+    }
+
     $localTZ = new DateTimeZone("America/New_York");
     $utcTZ = new DateTimeZone("UTC");
 
@@ -360,6 +346,34 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
       throw new InvalidArgumentException(_txt('er.id.unk-a', array($id)));
     }
       
+    unset($results['data'][0]['authentication']['password']);
+    unset($results['data'][0]['publications_access']);
+    unset($results['data'][0]['publications_history']);
+    unset($results['data'][0]['dues_history']);
+    unset($results['data'][0]['contributions_history']);
+
+    // Some attributes only show up in the detailed view (get via ID).
+    // A member can have multiple addresses with somewhat different
+    // attributes, for now we just look at primary.
+
+    if(!empty($results['data'][0]['addresses'])) {
+      foreach($results['data'][0]['addresses'] as $ra) {
+        if($ra['type'] == 'primary') {
+          if(!empty($ra['affiliation'])) {
+            $results['data'][0]['comanage_custom']['primary_address_affiliation'] = $ra['affiliation'];
+          }
+
+          // Unclear what if anything should map to ou...
+
+          if(!empty($ra['rank'])) {
+            $results['data'][0]['comanage_custom']['primary_address_rank'] = $ra['rank'];
+          }
+
+          break;
+        }
+      }
+    }
+
     $ret['raw'] = json_encode($results, JSON_PRETTY_PRINT);
     $ret['orgidentity'] = $this->resultToOrgIdentity($results['data'][0]);
     
