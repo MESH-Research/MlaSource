@@ -349,6 +349,7 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
     unset($results['data'][0]['authentication']['password']);
     unset($results['data'][0]['publications_access']);
     unset($results['data'][0]['publications_history']);
+    unset($results['data'][0]['addresses']);
     unset($results['data'][0]['dues_history']);
     unset($results['data'][0]['contributions_history']);
 
