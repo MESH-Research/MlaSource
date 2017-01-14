@@ -367,8 +367,9 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
 
           // Unclear what if anything should map to ou...
 
+          // rank will become title and title cannot have html content.
           if(!empty($ra['rank'])) {
-            $results['data'][0]['comanage_custom']['primary_address_rank'] = $ra['rank'];
+            $results['data'][0]['comanage_custom']['primary_address_rank'] = strip_tags($ra['rank']);
           }
 
           break;
