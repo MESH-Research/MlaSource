@@ -221,7 +221,9 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
         // We can search on name
         // $ret['organizations'][] = $o['name'];
         // Or convention code
-        $ret['organizations'][] = $o['convention_code'];
+        if ($o['primary'] === 'Y' || substr($o['convention_code'],0,1) === 'M') {
+          $ret['organizations'][] = $o['convention_code'];
+        }
       }
     }
     
@@ -316,6 +318,12 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
         $orgdata['Identifier'][1]['login'] = true;
         $orgdata['Identifier'][1]['status'] = StatusEnum::Active;
       }
+/* someday...
+      $orgdata['Identifier'][2]['identifier'] = $result['id'];
+      $orgdata['Identifier'][2]['type'] = IdentifierEnum::SORID;
+      $orgdata['Identifier'][2]['login'] = false;
+      $orgdata['Identifier'][2]['status'] = StatusEnum::Active;
+*/
     }
     
     return $orgdata;
@@ -339,15 +347,12 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
     $results = $this->queryMlaApi(array('id' => $id));
 
     if($results['meta']['status'] != 'success'
-       || empty($results['data'][0]['id'])
-       // Filter out inactive records (#242)
-       || (!empty($results['data'][0]['authentication']['membership_status'])
-           && $results['data'][0]['authentication']['membership_status'] == 'inactive')) {
+       || empty($results['data'][0]['id'])) {
       throw new InvalidArgumentException(_txt('er.id.unk-a', array($id)));
     }
       
     // Remove password due to unnecessary syncs, other history due to privacy policy, starting_date due to current member issue
-    unset($results['data'][0]['authentication']['password']);
+    //unset($results['data'][0]['authentication']['password']);
     unset($results['data'][0]['membership']['starting_date']);
     unset($results['data'][0]['publications_access']);
     unset($results['data'][0]['publications_history']);
@@ -409,9 +414,6 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
     }
     
     // We need to query memberships_status=ALL to get MLA staff,
-    // but that pulls inactive users as well. We can't run a second
-    // query and do a diff, since our only options are "active" and "all".
-    // Our only option then is to query each search result. (#242)
     $attrs['membership_status'] = 'ALL';
     
     $results = $this->queryMlaApi($attrs);
@@ -421,16 +423,8 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
     if($results['meta']['status'] == 'success'
        && $results['data'][0]['total_num_results'] > 0) {
       foreach($results['data'][0]['search_results'] as $r) {
-        // We need to filter out inactive records (#242)
-        try {
-          $details = $this->retrieve($r['id']);
-          
           // Use the record ID as the unique ID
           $ret[ $r['id'] ] = $this->resultToOrgIdentity($r);
-        }
-        catch(Exception $e) {
-          // Most likely record not found, so don't add to search results
-        }
       }
     }
     
