@@ -352,11 +352,13 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
     }
       
     // Remove password due to unnecessary syncs, other history due to privacy policy
+    // Remove starting_date - starting dates in the future are still considered active now in MLA API.
     unset($results['data'][0]['authentication']['password']);
     unset($results['data'][0]['publications_access']);
     unset($results['data'][0]['publications_history']);
     unset($results['data'][0]['dues_history']);
     unset($results['data'][0]['contributions_history']);
+    unset($results['data'][0]['membership']['starting_date']);
 
     // Some attributes only show up in the detailed view (get via ID).
     // A member can have multiple addresses with somewhat different
