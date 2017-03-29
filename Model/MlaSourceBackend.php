@@ -36,6 +36,8 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
     'organizations' => 'Organizations'
   );
   
+  protected $groupAdminRoles = array('chair', 'liaison', 'liason', 'secretary', 'executive');
+  
   /** 
    * Build a query URL for an MLA API call, based on the plugin's configuration.
    *
@@ -214,8 +216,6 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
     // We ignore $this->groupAttrs for now since the only supported
     // attribute is organizations
     
-    // We probably need to look at position for Member vs Admin (#125)
-    
     if(!empty($attrs['data'][0]['organizations'])) {
       foreach($attrs['data'][0]['organizations'] as $o) {
         // We can search on name
@@ -223,6 +223,13 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
         // Or convention code
         if ($o['primary'] === 'Y' || substr($o['convention_code'],0,1) === 'M') {
           $ret['organizations'][] = $o['convention_code'];
+          
+          // Look at the position to see if the person is an admin
+          if(!empty($o['position'])
+             && in_array(strtolower($o['position']), $this->groupAdminRoles)) {
+            // Use the convention code as the group name and append ":admin"
+            $ret['organizations'][] = $o['convention_code'] . ':admin';
+          }
         }
       }
     }
