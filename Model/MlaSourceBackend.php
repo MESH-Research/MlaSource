@@ -312,18 +312,31 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
       $orgdata['Identifier'][0]['login'] = false;
       $orgdata['Identifier'][0]['status'] = StatusEnum::Active;
       
+      $next_identifier = 1;
       if(!empty($this->pluginCfg['eppnsuffix'])) {
-        $orgdata['Identifier'][1]['identifier'] = $result['authentication']['username'] . $this->pluginCfg['eppnsuffix'];
-        $orgdata['Identifier'][1]['type'] = IdentifierEnum::ePPN;
-        $orgdata['Identifier'][1]['login'] = true;
-        $orgdata['Identifier'][1]['status'] = StatusEnum::Active;
+        $orgdata['Identifier'][$next_identifier]['identifier'] = $result['authentication']['username'] . $this->pluginCfg['eppnsuffix'];
+        $orgdata['Identifier'][$next_identifier]['type'] = IdentifierEnum::ePPN;
+        $orgdata['Identifier'][$next_identifier]['login'] = true;
+        $orgdata['Identifier'][$next_identifier]['status'] = StatusEnum::Active;
+        $next_identifier++;
       }
-/* someday...
-      $orgdata['Identifier'][2]['identifier'] = $result['id'];
-      $orgdata['Identifier'][2]['type'] = IdentifierEnum::SORID;
-      $orgdata['Identifier'][2]['login'] = false;
-      $orgdata['Identifier'][2]['status'] = StatusEnum::Active;
-*/
+
+      if(!empty($result['general']['orcid'])) {
+        $orgdata['Identifier'][$next_identifier]['identifier'] = $result['general']['orcid'];
+        $orgdata['Identifier'][$next_identifier]['type'] = IdentifierEnum::ORCID;
+        $orgdata['Identifier'][$next_identifier]['login'] = false;
+        $orgdata['Identifier'][$next_identifier]['status'] = StatusEnum::Active;
+        $next_identifier++;
+      }
+
+      if(!empty($result['id'])) {
+        $orgdata['Identifier'][$next_identifier]['identifier'] = $result['id'];
+        $orgdata['Identifier'][$next_identifier]['type'] = IdentifierEnum::SORID;
+        $orgdata['Identifier'][$next_identifier]['login'] = false;
+        $orgdata['Identifier'][$next_identifier]['status'] = StatusEnum::Active;
+        $next_identifier++;
+      }
+
     }
     
     return $orgdata;
@@ -354,6 +367,8 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
     // Remove password due to unnecessary syncs, other history due to privacy policy
     // Remove starting_date - starting dates in the future are still considered active now in MLA API.
     unset($results['data'][0]['authentication']['password']);
+    // Enable password update to trigger mass sync
+    //$results['data'][0]['authentication']['password'] = 'mass update 0615';
     unset($results['data'][0]['publications_access']);
     unset($results['data'][0]['publications_history']);
     unset($results['data'][0]['dues_history']);
