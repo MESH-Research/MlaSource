@@ -222,13 +222,13 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
         // $ret['organizations'][] = $o['name'];
         // Or convention code
         if ($o['primary'] === 'Y' || substr($o['convention_code'],0,1) === 'M') {
-          $ret['organizations'][] = $o['convention_code'];
+          $ret['organizations'][] = array('value' => (string)$o['convention_code']);
           
           // Look at the position to see if the person is an admin
           if(!empty($o['position'])
              && in_array(strtolower($o['position']), $this->groupAdminRoles)) {
             // Use the convention code as the group name and append ":admin"
-            $ret['organizations'][] = $o['convention_code'] . ':admin';
+            $ret['organizations'][] = array('value' => (string)$o['convention_code'] . ':admin');
           }
         }
       }
@@ -311,6 +311,7 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
     if(!empty($result['authentication']['username'])
        && !empty($result['general']['joined_commons'])
        && $result['general']['joined_commons'] == 'Y') {
+/* Duplicate wpid (enrollment and accout link are causing problems for MLA users who have different usernames in Hcommons and MLA.
       $orgdata['Identifier'][0]['identifier'] = $result['authentication']['username'];
       // XXX wpid isn't a valid orgidentity identifier type, so for now
       // wpid.patch needs to be applied to make it one. Once CO-530 is
@@ -318,8 +319,9 @@ class MlaSourceBackend extends OrgIdentitySourceBackend {
       $orgdata['Identifier'][0]['type'] = 'wpid';
       $orgdata['Identifier'][0]['login'] = false;
       $orgdata['Identifier'][0]['status'] = StatusEnum::Active;
+*/
       
-      $next_identifier = 1;
+      $next_identifier = 0;
       if(!empty($this->pluginCfg['eppnsuffix'])) {
         $orgdata['Identifier'][$next_identifier]['identifier'] = $result['authentication']['username'] . $this->pluginCfg['eppnsuffix'];
         $orgdata['Identifier'][$next_identifier]['type'] = IdentifierEnum::ePPN;
